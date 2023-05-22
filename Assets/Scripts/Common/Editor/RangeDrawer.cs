@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Assets.Scripts.Common.Extensions;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -16,6 +17,9 @@ namespace Assets.Scripts.Common
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			base.OnGUI(position, property, label);
+			return;
+			
 			Rect contentPosition = EditorGUI.PrefixLabel(position, label);
 
 			if (position.height > 16f)
@@ -78,25 +82,84 @@ namespace Assets.Scripts.Common
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
-			return base.CreatePropertyGUI(property);
-			
+			//return base.CreatePropertyGUI(property);
+
 			var container = new VisualElement();
 
+			VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Common/Editor/RangeDrawer.uxml");
+			visualTree.CloneTree(container);
+
+			//var labelField = container.Q<Label>("label");
+			//labelField.text = property.displayName;
+
+			var foldout = container.Q<Foldout>();
+			foldout.text = property.displayName;
+
+			var tooltipAttr = property.GetAttribute<TooltipAttribute>();
+			if (tooltipAttr != null)
+			{
+				foldout.tooltip = tooltipAttr.tooltip;
+			}
+
+			/*
+			var minFieldContainer = container.Q<VisualElement>("minContainer");
+			if (minFieldContainer != null)
+			{
+				var minProperty = property.FindPropertyRelative("min");
+				var minField = new FloatField();
+				minField.BindProperty(minProperty);
+				minField.label = string.Empty;
+				minFieldContainer.Add(minField);
+			}
+
+			var maxFieldContainer = container.Q<VisualElement>("maxContainer");
+			if (maxFieldContainer != null)
+			{
+				var maxProperty = property.FindPropertyRelative("max");
+				var maxField = new FloatField();
+				maxField.BindProperty(maxProperty);
+				maxField.label = string.Empty;
+				maxFieldContainer.Add(maxField);
+			}
+			*/
+
+			var minField = container.Q<PropertyField>("min");
+			minField.BindProperty(property.FindPropertyRelative("min"));
+			//minField.label = string.Empty;
+
+			var maxField = container.Q<PropertyField>("max");
+			maxField.BindProperty(property.FindPropertyRelative("max"));
+			//maxField.label = string.Empty;
+
+			//var minField = container.Q<TextField>("min");
+			//minField.BindProperty(property.FindPropertyRelative("min"));
+
+			//var floatField = container.Q<FloatField>("max");
+
+			//floatField.
+
+			/*
 			//container.style.backgroundColor = Color.red;
 
 			container.style.flexDirection = FlexDirection.Row;
 
-			container.Add(new TextField(property.displayName));
+			var labelField = new TextField(property.displayName);
+			container.Add(labelField);
 
 			//property.propertyType == SerializedPropertyType.Float
 
 			var minField = new PropertyField(property.FindPropertyRelative("min"));
 			var maxField = new PropertyField(property.FindPropertyRelative("max"));
 
+			//labelField.style.flexGrow = 1.0f;
+			//minField.style.flexGrow = 1.0f;
+			//maxField.style.flexGrow = 1.0f;
+
 			container.Add(minField);
 			container.Add(maxField);
 
 			//container.Add(new HelpBox("FFFFF", HelpBoxMessageType.Error));
+			*/
 
 			return container;
 		}

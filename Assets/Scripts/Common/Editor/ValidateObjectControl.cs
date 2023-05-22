@@ -3,28 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Assets.Scripts.Common;
 using Assets.Scripts.Common.Attributes;
-using Assets.Scripts.Common.Editor;
 using Assets.Scripts.Common.Extensions;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-namespace Assets.Scripts.Chests
+namespace Assets.Scripts.Common
 {
-	[CustomPropertyDrawer(typeof(ChestConfig.RewardInfo))]
-	public class RewardInfoDrawer: PropertyDrawer
+	public class ValidateObjectControl
 	{
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		public void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			base.OnGUI(position, property, label);
-			return;
-
-			//Rect foldOutRect = new Rect(position.xMin, position.yMin, position.size.x,
-			//	EditorGUIUtility.singleLineHeight);
-			
 			Rect foldoutRect = new Rect()
 			{
 				x = position.x,
@@ -106,17 +95,10 @@ namespace Assets.Scripts.Chests
 			}
 
 			property.serializedObject.ApplyModifiedProperties();
-			//EditorGUI.EndProperty();
 		}
 
-		private void DrawHelpBox(string message)
+		public float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-		}
-
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			//return base.GetPropertyHeight(property, label);
-			
 			float totalHeight = EditorGUIUtility.singleLineHeight;
 
 			var expandable = (property.isExpanded || property.isArray);
@@ -148,59 +130,6 @@ namespace Assets.Scripts.Chests
 			}
 
 			return expandable ? totalHeight : EditorGUIUtility.singleLineHeight;
-		}
-
-		//private Dictionary<Seria>
-
-		private readonly List<ValidatePropertyField> _propertyFields = new List<ValidatePropertyField>();
-
-		private SerializedProperty _ownerProperty;
-
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			return new ValidateObjectElement(property);
-			//return base.CreatePropertyGUI(property);
-
-			_ownerProperty = property;
-
-			_propertyFields.Clear();
-
-			var container = new VisualElement();
-
-			var foldout = new Foldout();
-			foldout.text = property.displayName;
-
-			foreach (var childProperty in property.GetVisibleChildren(true))
-			{
-				var childField = new ValidatePropertyField();
-				childField.Initialize(childProperty, property, PropertyChangeCallback);
-
-				foldout.Add(childField);
-
-				_propertyFields.Add(childField);
-
-				childField.IsVisible();
-			}
-
-			container.Add(foldout);
-
-			//CheckPropertiesVisibility();
-
-			return container;
-		}
-
-		private void PropertyChangeCallback(SerializedPropertyChangeEvent evt)
-		{
-			//CheckPropertiesVisibility();
-		}
-
-		private void CheckPropertiesVisibility()
-		{
-			foreach (var propertyField in _propertyFields)
-			{
-				bool isPropertyVisible = propertyField.IsVisible();
-				propertyField.style.display = new StyleEnum<DisplayStyle>(isPropertyVisible ? DisplayStyle.Flex : DisplayStyle.None);
-			}
 		}
 	}
 }

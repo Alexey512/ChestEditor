@@ -14,23 +14,11 @@ namespace Assets.Scripts.Chests
 	[CreateAssetMenu(menuName = "Inventory/Chest")]
 	public class ChestConfig: ScriptableObject 
 	{
-
 		public enum RewardType 
 		{
 			Soft,
 			Hard,
 			Chest,
-		}
-
-		[Serializable]
-		public class RewardInfoAdd 
-		{
-			[Range(0, 1)]
-			public float randomWeight = 1;
-			
-			public RewardType type;
-			
-			public RangeFloat hard;
 		}
 
 		[Serializable]
@@ -58,29 +46,18 @@ namespace Assets.Scripts.Chests
 			public int chestCount;
 
 
-			//[VisibleIf("type", RewardType.Hard)]
-			//public RangeFloat hard;
+			[VisibleIf("type", RewardType.Hard)]
+			[Tooltip("Интервал Hard")]
+			public RangeFloat hard;
 
-			//[VisibleIf("type", RewardType.Soft)]
-			//public RangeInt soft;
-
-			//public Vector2 vector2;
-			//public Point point;
-
-			//[SerializeField]
-			//public RewardInfoAdd info;
+			[VisibleIf("type", RewardType.Soft)]
+			[Tooltip("Интервал Soft")]
+			public RangeInt soft;
 		}
 
 		//[SerializeField] private RewardInfo _singleReward;
 
 		[SerializeField] private RewardInfo[] _rewards;
-		
-
-		//[SerializeField] private RangeFloat[] _ranges;
-
-		//[SerializeField] private Point[] _points;
-
-		//[SerializeField] private Ingredient[] _ingredients;
 
 		public RewardInfo[] Rewards => _rewards;
 

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="project://database/Assets/Scripts/Common/Editor/RangeDrawer.uss?fileID=7433441132597879392&amp;guid=7aab47c1297e02c499ae4a51f49ac392&amp;type=3#RangeDrawer" />
+    <ui:Foldout text="Foldout" name="foldout">
+        <uie:PropertyField name="max" />
+        <uie:PropertyField name="min" />
+    </ui:Foldout>
+</ui:UXML>
