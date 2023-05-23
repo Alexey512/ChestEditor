@@ -13,43 +13,83 @@ MonoBehaviour:
   m_Name: ChestA
   m_EditorClassIdentifier: 
   _rewards:
-  - randomWeight: 9.3
-    type: 2
+  - randomWeight: 8.7
+    type: 1
     chest: {fileID: 11400000, guid: e0511c6d4f18de64d943025133103a24, type: 2}
-    chestCount: -4
+    chestCount: 54
     hardRange:
-      min: 0.34
+      min: -0.85
       max: 2.51
     softRange:
-      min: -26
+      min: 66
       max: 104
-  - randomWeight: 0
-    type: 0
+  - randomWeight: 10.5
+    type: 2
     chest: {fileID: 11400000}
     chestCount: 8
     hardRange:
       min: 0
       max: 0
     softRange:
-      min: -3
+      min: 5
       max: 116
-  - randomWeight: 9.3
+  - randomWeight: 4.9
     type: 1
     chest: {fileID: 11400000}
     chestCount: 8
     hardRange:
-      min: 0
-      max: 0
+      min: 0.3
+      max: 1.9
     softRange:
       min: -12
       max: 116
-  - randomWeight: 9.3
-    type: 2
-    chest: {fileID: 0}
+  - randomWeight: 2.1
+    type: 0
+    chest: {fileID: 11400000, guid: e0511c6d4f18de64d943025133103a24, type: 2}
     chestCount: 8
     hardRange:
-      min: 0
-      max: 0
+      min: 0.36
+      max: 0.97
     softRange:
-      min: -12
+      min: 13
+      max: 116
+  - randomWeight: 21.8
+    type: 2
+    chest: {fileID: 11400000, guid: e0511c6d4f18de64d943025133103a24, type: 2}
+    chestCount: -38
+    hardRange:
+      min: 1.48
+      max: 25.67
+    softRange:
+      min: 10
+      max: 116
+  - randomWeight: 11
+    type: 2
+    chest: {fileID: 0}
+    chestCount: 12
+    hardRange:
+      min: 1.48
+      max: 25.67
+    softRange:
+      min: 10
+      max: 116
+  - randomWeight: 11
+    type: 2
+    chest: {fileID: 11400000, guid: e0511c6d4f18de64d943025133103a24, type: 2}
+    chestCount: 12
+    hardRange:
+      min: 1.48
+      max: 25.67
+    softRange:
+      min: 10
+      max: 116
+  - randomWeight: 11
+    type: 2
+    chest: {fileID: 11400000, guid: e0511c6d4f18de64d943025133103a24, type: 2}
+    chestCount: 12
+    hardRange:
+      min: 1.48
+      max: 25.67
+    softRange:
+      min: 10
       max: 116
