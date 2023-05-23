@@ -1,0 +1,28 @@
+.unity-foldout
+{
+    padding-left:0px;
+    padding-right:0px;
+    padding-bottom:5px;
+    padding-top:5px;
+    border-width: 1px 0px 1px 0px;
+    border-color: rgb(127,127,127);
+}
+
+.unity-foldout__toggle:focus>.unity-toggle__input>Label
+{
+    -unity-font-style: bold;
+    color: rgb(255,76,76);
+}
+.unity-foldout__toggle>.unity-toggle__input>Label
+{
+    -unity-font-style: bold;
+    color: rgb(255,76,76);
+}
+ 
+.unity-foldout__content
+{
+    -unity-font-style: normal;
+    background-color: rgb(76,76,76);
+    margin-left: 0px;
+    padding-right:7px;
+}

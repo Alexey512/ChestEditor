@@ -23,7 +23,8 @@ namespace Assets.Scripts.Common
 
 		private readonly Foldout _foldout;
 
-		private static StyleSheet _styleSheet;
+		private StyleSheet _styleSheet;
+		private StyleSheet _styleSheetInvalid;
 
 		public ValidateObjectElement(SerializedProperty property)
 		{
@@ -33,10 +34,12 @@ namespace Assets.Scripts.Common
 
 			_foldout = new Foldout();
 
-			var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Common/Editor/ValidateObjectElement.uss");
-			if (styleSheet != null)
+			_styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Common/Editor/ValidateObjectElement.uss");
+			_styleSheetInvalid = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Common/Editor/ValidateObjectElementInvalid.uss");
+
+			if (_styleSheet != null)
 			{
-				_foldout.styleSheets.Add(styleSheet);
+				_foldout.styleSheets.Add(_styleSheet);
 			}
 
 			UpdateDisplayName(property);
@@ -54,6 +57,7 @@ namespace Assets.Scripts.Common
 			Add(_foldout);
 
 			CheckPropertiesVisibility();
+			CheckValidateProperties();
 		}
 
 		protected virtual string GetDisplayName(SerializedProperty property)
@@ -70,6 +74,7 @@ namespace Assets.Scripts.Common
 		private void PropertyChangeCallback(SerializedPropertyChangeEvent evt)
 		{
 			CheckPropertiesVisibility();
+			CheckValidateProperties();
 			UpdateDisplayName(_ownerProperty);
 		}
 
@@ -79,6 +84,28 @@ namespace Assets.Scripts.Common
 			{
 				bool isPropertyVisible = propertyField.IsVisible();
 				propertyField.style.display = new StyleEnum<DisplayStyle>(isPropertyVisible ? DisplayStyle.Flex : DisplayStyle.None);
+			}
+		}
+
+		private void CheckValidateProperties()
+		{
+			bool isValid = _propertyFields.Where(p => p.IsVisible()).All(p => p.IsValid());
+
+			if (!isValid)
+			{
+				if (_styleSheetInvalid != null)
+				{
+					_foldout.styleSheets.Clear();
+					_foldout.styleSheets.Add(_styleSheetInvalid);
+				}
+			}
+			else
+			{
+				if (_styleSheet != null)
+				{
+					_foldout.styleSheets.Clear();
+					_foldout.styleSheets.Add(_styleSheet);
+				}
 			}
 		}
 	}

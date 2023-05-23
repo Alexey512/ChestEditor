@@ -30,6 +30,8 @@ namespace Assets.Scripts.Common.Editor
 
 		private bool _isRequired = false;
 
+		private bool _isValid = true;
+
 		public ValidatePropertyField()
 		{
 			_propertyField = new PropertyField();
@@ -65,8 +67,15 @@ namespace Assets.Scripts.Common.Editor
 			return _visibilityAttributes.All(attr => EditorReflectionHelper.CheckCondition(_property, attr, _ownerProperty));
 		}
 
+		public bool IsValid()
+		{
+			return _isValid;
+		}
+
 		private void ValidateProperty(SerializedProperty property)
 		{
+			_isValid = true;
+			
 			if (_ownerProperty != null)
 			{
 				_helpBox.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
@@ -76,7 +85,10 @@ namespace Assets.Scripts.Common.Editor
 				var validateAttributes = property.GetAttributes<ValidatePropertyAttribute>();
 				foreach (var validateAttribute in validateAttributes)
 				{
-					if (!EditorReflectionHelper.CheckCondition(property, validateAttribute, _ownerProperty))
+					if (!property.IsVisible(_ownerProperty))
+						continue;
+
+					if (!property.CheckCondition(validateAttribute, _ownerProperty))
 					{
 						messageText.AppendLine(validateAttribute.message);
 					}
@@ -94,6 +106,8 @@ namespace Assets.Scripts.Common.Editor
 				{
 					_helpBox.text = messageText.ToString();
 					_helpBox.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+
+					_isValid = false;
 				}
 			}
 		}
