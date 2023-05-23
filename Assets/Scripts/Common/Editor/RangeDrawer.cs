@@ -66,11 +66,11 @@ namespace Assets.Scripts.Common
 		{
 			if (minProperty.propertyType == SerializedPropertyType.Integer)
 			{
-				minProperty.intValue = Math.Min(minProperty.intValue, maxProperty.intValue);
+				maxProperty.intValue = Math.Max(minProperty.intValue, maxProperty.intValue);
 			}
 			else if (minProperty.propertyType == SerializedPropertyType.Float)
 			{
-				minProperty.floatValue = Math.Min(minProperty.floatValue, maxProperty.floatValue);
+				maxProperty.floatValue = Math.Max(minProperty.floatValue, maxProperty.floatValue);
 			}
 		}
 
@@ -78,11 +78,11 @@ namespace Assets.Scripts.Common
 		{
 			if (maxProperty.propertyType == SerializedPropertyType.Integer)
 			{
-				maxProperty.intValue = Math.Max(minProperty.intValue, maxProperty.intValue);
+				minProperty.intValue = Math.Min(minProperty.intValue, maxProperty.intValue);
 			}
 			else if (maxProperty.propertyType == SerializedPropertyType.Float)
 			{
-				maxProperty.floatValue = Math.Max(minProperty.floatValue, maxProperty.floatValue);
+				minProperty.floatValue = Math.Min(minProperty.floatValue, maxProperty.floatValue);
 			}
 		}
 
