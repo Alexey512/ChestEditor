@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c87238b80bfcbe48a8b48194c6b3440, type: 3}
+  m_Name: ChestA
+  m_EditorClassIdentifier: 
+  _rewards:
+  - randomWeight: 9.3
+    type: 2
+    chest: {fileID: 11400000, guid: e0511c6d4f18de64d943025133103a24, type: 2}
+    chestCount: -4
+    hardRange:
+      min: 0.34
+      max: 2.51
+    softRange:
+      min: -26
+      max: 104
+  - randomWeight: 0
+    type: 0
+    chest: {fileID: 11400000}
+    chestCount: 8
+    hardRange:
+      min: 0
+      max: 0
+    softRange:
+      min: -3
+      max: 116
+  - randomWeight: 9.3
+    type: 1
+    chest: {fileID: 11400000}
+    chestCount: 8
+    hardRange:
+      min: 0
+      max: 0
+    softRange:
+      min: -12
+      max: 116
+  - randomWeight: 9.3
+    type: 2
+    chest: {fileID: 0}
+    chestCount: 8
+    hardRange:
+      min: 0
+      max: 0
+    softRange:
+      min: -12
+      max: 116

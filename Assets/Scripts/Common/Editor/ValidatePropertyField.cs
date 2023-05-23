@@ -27,7 +27,7 @@ namespace Assets.Scripts.Common.Editor
 
 		private Action<SerializedPropertyChangeEvent> _valueChangeCallback;
 
-		private List<VisibleIfAttribute> _visibilityAttributes = new List<VisibleIfAttribute>();
+		private readonly List<VisibleIfAttribute> _visibilityAttributes = new List<VisibleIfAttribute>();
 
 		private bool _isRequired = false;
 
@@ -54,6 +54,8 @@ namespace Assets.Scripts.Common.Editor
 
 			_visibilityAttributes.Clear();
 			_visibilityAttributes.AddRange(property.GetAttributes<VisibleIfAttribute>());
+
+			ValidateProperty(property);
 		}
 
 		public bool IsVisible()
@@ -61,10 +63,10 @@ namespace Assets.Scripts.Common.Editor
 			if (_property == null || _ownerProperty == null)
 				return false;
 
-			return _visibilityAttributes.All(attr => EditorExtensions.CheckCondition(_property, attr, _ownerProperty));
+			return _visibilityAttributes.All(attr => EditorReflectionHelper.CheckCondition(_property, attr, _ownerProperty));
 		}
 
-		private void OnValueChange(SerializedPropertyChangeEvent evt)
+		private void ValidateProperty(SerializedProperty property)
 		{
 			if (_ownerProperty != null)
 			{
@@ -72,20 +74,20 @@ namespace Assets.Scripts.Common.Editor
 
 				StringBuilder messageText = new StringBuilder();
 
-				var validateAttributes = evt.changedProperty.GetAttributes<ValidatePropertyAttribute>();
+				var validateAttributes = property.GetAttributes<ValidatePropertyAttribute>();
 				foreach (var validateAttribute in validateAttributes)
 				{
-					if (!EditorExtensions.CheckCondition(evt.changedProperty, validateAttribute, _ownerProperty))
+					if (!EditorReflectionHelper.CheckCondition(property, validateAttribute, _ownerProperty))
 					{
 						messageText.AppendLine(validateAttribute.message);
 					}
 				}
 
-				if (evt.changedProperty.propertyType == SerializedPropertyType.ObjectReference)
+				if (property.propertyType == SerializedPropertyType.ObjectReference)
 				{
-					if (evt.changedProperty.objectReferenceValue == null)
+					if (property.objectReferenceValue == null)
 					{
-						messageText.AppendLine(evt.changedProperty.displayName + " is required");
+						messageText.AppendLine(property.displayName + " is required");
 					}
 				}
 
@@ -95,6 +97,11 @@ namespace Assets.Scripts.Common.Editor
 					_helpBox.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
 				}
 			}
+		}
+
+		private void OnValueChange(SerializedPropertyChangeEvent evt)
+		{
+			ValidateProperty(evt.changedProperty);
 
 			_valueChangeCallback?.Invoke(evt);
 		}

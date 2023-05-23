@@ -6,14 +6,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Assets.Scripts.Common.Attributes;
-using NaughtyAttributes.Editor;
 using UnityEditor;
 
 namespace Assets.Scripts.Common.Extensions
 {
-	public static class EditorExtensions
+	public static class EditorReflectionHelper
 	{
-		public static IEnumerable<SerializedProperty> GetVisibleChildren(this SerializedProperty serializedProperty, bool includeHidden = false)
+		public static IEnumerable<SerializedProperty> GetVisibleChildren(this SerializedProperty serializedProperty)
 		{
 			SerializedProperty currentProperty = serializedProperty.Copy();
 			SerializedProperty nextSiblingProperty = serializedProperty.Copy();
@@ -28,10 +27,7 @@ namespace Assets.Scripts.Common.Extensions
 					if (SerializedProperty.EqualContents(currentProperty, nextSiblingProperty))
 						break;
 
-					//if (includeHidden || currentProperty.IsVisible(serializedProperty.Copy()))
-					{
-						yield return currentProperty;
-					}
+					yield return currentProperty;
 				}
 				while (currentProperty.NextVisible(false));
 			}
@@ -46,7 +42,7 @@ namespace Assets.Scripts.Common.Extensions
 			return CheckCondition(property, attribute, ownerProperty);
 		}
 
-		public static bool CheckCondition(SerializedProperty property, ConditionAttribute attribute, SerializedProperty ownerProperty)
+		public static bool CheckCondition(this SerializedProperty property, ConditionAttribute attribute, SerializedProperty ownerProperty)
 		{
 			SerializedProperty conditionField = property.serializedObject.FindProperty(attribute.conditionField);
 			if (conditionField == null)
@@ -143,13 +139,20 @@ namespace Assets.Scripts.Common.Extensions
 
 		public static T GetAttribute<T>(this SerializedProperty property) where T : class
 		{
-			T[] attributes = property.GetAttributes<T>();
-			return (attributes.Length > 0) ? attributes[0] : null;
+			var attributes = property.GetAttributes<T>();
+			return attributes.Length > 0 ? attributes[0] : null;
 		}
 
 		public static T[] GetAttributes<T>(this SerializedProperty property) where T : class
 		{
-			FieldInfo fieldInfo = ReflectionUtility.GetField(GetTargetObjectByProperty(property), property.name);
+			var targetObject = GetTargetObjectByProperty(property);
+			if (targetObject == null)
+			{
+				return new T[] { };
+			}
+
+			FieldInfo fieldInfo = targetObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
+				.FirstOrDefault(field => field.Name.Equals(property.name, StringComparison.Ordinal));
 			if (fieldInfo == null)
 			{
 				return new T[] { };
@@ -166,18 +169,17 @@ namespace Assets.Scripts.Common.Extensions
 
 		private static object GetTargetObjectByProperty(SerializedProperty property)
 		{
-			string propertyPath = property.propertyPath.Replace(".Array.data[", "[");
 			object targetObj = property.serializedObject.targetObject;
-			string[] elements = propertyPath.Split('.');
+			string[] items = property.propertyPath.Replace(".Array.data[", "[").Split('.');
 
-			for (int i = 0; i < elements.Length - 1; i++)
+			for (int i = 0; i < items.Length - 1; i++)
 			{
-				string element = elements[i];
+				string element = items[i];
 				if (element.Contains("["))
 				{
-					string elementName = element.Substring(0, element.IndexOf("[", StringComparison.Ordinal));
 					int index = Convert.ToInt32(element.Substring(element.IndexOf("[", StringComparison.Ordinal)).Replace("[", "").Replace("]", ""));
-					targetObj = GetPropertyValue(targetObj, elementName, index);
+					string itemName = element.Substring(0, element.IndexOf("[", StringComparison.Ordinal));
+					targetObj = GetPropertyValue(targetObj, itemName, index);
 				}
 				else
 				{

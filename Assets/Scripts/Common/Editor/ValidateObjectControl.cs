@@ -12,6 +12,7 @@ namespace Assets.Scripts.Common
 {
 	public class ValidateObjectControl
 	{
+		
 		public void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			Rect foldoutRect = new Rect()
@@ -22,7 +23,9 @@ namespace Assets.Scripts.Common
 				height = EditorGUIUtility.singleLineHeight
 			};
 
-			property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, label);
+			var displayName = GetDisplayName(property);
+
+			property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, !string.IsNullOrWhiteSpace(displayName) ? new GUIContent(displayName) : label);
 
 			if (property.isExpanded)
 			{
@@ -74,7 +77,7 @@ namespace Assets.Scripts.Common
 					var validateAttributes = childProperty.GetAttributes<ValidatePropertyAttribute>();
 					foreach (var validateAttribute in validateAttributes)
 					{
-						if (!EditorExtensions.CheckCondition(childProperty, validateAttribute, property))
+						if (!EditorReflectionHelper.CheckCondition(childProperty, validateAttribute, property))
 						{
 							Rect boxRect = new Rect()
 							{
@@ -104,9 +107,11 @@ namespace Assets.Scripts.Common
 			var expandable = (property.isExpanded || property.isArray);
 			if (expandable)
 			{
-				//TODO: оптимизировать
 				foreach (var childProperty in property.GetVisibleChildren())
 				{
+					if (!childProperty.IsVisible(property))
+						continue;
+					
 					totalHeight += EditorGUI.GetPropertyHeight(childProperty, label, true);
 
 					var requiredAttribute = childProperty.GetAttribute<RequiredPropertyAttribute>();
@@ -121,7 +126,7 @@ namespace Assets.Scripts.Common
 					var validateAttributes = childProperty.GetAttributes<ValidatePropertyAttribute>();
 					foreach (var validateAttribute in validateAttributes)
 					{
-						if (!EditorExtensions.CheckCondition(childProperty, validateAttribute, property))
+						if (!EditorReflectionHelper.CheckCondition(childProperty, validateAttribute, property))
 						{
 							totalHeight += EditorGUIUtility.singleLineHeight * 2;
 						}
@@ -130,6 +135,11 @@ namespace Assets.Scripts.Common
 			}
 
 			return expandable ? totalHeight : EditorGUIUtility.singleLineHeight;
+		}
+
+		protected virtual string GetDisplayName(SerializedProperty property)
+		{
+			return string.Empty;
 		}
 	}
 }
