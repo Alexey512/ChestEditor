@@ -15,27 +15,36 @@ namespace Assets.Scripts.Common
 	[CustomPropertyDrawer(typeof(RangeFloat))]
 	public class RangeIntPropertyDrawer: PropertyDrawer
 	{
+		private const int MaxWidth = 333;
+		private const float MaxHeight = 16f;
+		private const int Padding = 3;
+		private const float LabelWidth = 24f;
+		private const int IndentOffset = 2;
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			Rect contentPosition = EditorGUI.PrefixLabel(position, label);
 
-			if (position.height > 16f)
+			if (position.height > MaxHeight)
 			{
-				position.height = 16f;
+				position.height = MaxHeight;
 				contentPosition = EditorGUI.IndentedRect(position);
-				contentPosition.y += 18f;
+				contentPosition.y += EditorGUIUtility.singleLineHeight;
 			}
 
-			float half = contentPosition.width / 2;
-			GUI.skin.label.padding = new RectOffset(3, 3, 6, 6);
+			EditorGUI.indentLevel -= IndentOffset;
 
-			EditorGUIUtility.labelWidth = 28f;
+			float half = contentPosition.width * 0.5f;
+
+			float originalLabelWidth = EditorGUIUtility.labelWidth;
+
+			EditorGUIUtility.labelWidth = LabelWidth;
 
 			contentPosition.width *= 0.5f;
 
 			var minProperty = property.FindPropertyRelative("min");
 			var maxProperty = property.FindPropertyRelative("max");
-			
+
 			EditorGUI.BeginProperty(contentPosition, label, minProperty);
 			{
 				EditorGUI.BeginChangeCheck();
@@ -60,6 +69,10 @@ namespace Assets.Scripts.Common
 			}
 
 			EditorGUI.EndProperty();
+
+			EditorGUIUtility.labelWidth = originalLabelWidth;
+
+			EditorGUI.indentLevel += IndentOffset;
 		}
 
 		protected virtual void ValidateMinProperty(SerializedProperty minProperty, SerializedProperty maxProperty)
@@ -88,7 +101,7 @@ namespace Assets.Scripts.Common
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			return Screen.width < 333 ? (16f + 18f) : 16f;
+			return Screen.width < MaxWidth ? (MaxHeight + EditorGUIUtility.singleLineHeight) : MaxHeight;
 		}
 	}
 }

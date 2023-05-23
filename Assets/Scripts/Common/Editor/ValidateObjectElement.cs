@@ -25,6 +25,8 @@ namespace Assets.Scripts.Common
 
 		private Color BackColor = new Color(0.3f, 0.3f, 0.35f, 1.0f);
 
+		private static StyleSheet _styleSheet;
+
 		public ValidateObjectElement(SerializedProperty property)
 		{
 			_ownerProperty = property;
@@ -32,6 +34,12 @@ namespace Assets.Scripts.Common
 			_propertyFields.Clear();
 
 			_foldout = new Foldout();
+
+			var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Common/Editor/ValidateObjectElement.uss");
+			if (styleSheet != null)
+			{
+				_foldout.styleSheets.Add(styleSheet);
+			}
 
 			UpdateDisplayName(property);
 

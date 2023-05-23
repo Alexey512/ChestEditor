@@ -13,18 +13,21 @@ namespace Assets.Scripts.Chests
 		{
 			var typeProperty = property.FindPropertyRelative("type");
 			ChestConfig.RewardType rewardType = (ChestConfig.RewardType)typeProperty.enumValueIndex;
+			
+			float weight = property.FindPropertyRelative("randomWeight").floatValue;
+
 			switch (rewardType)
 			{
 				case ChestConfig.RewardType.Chest:
 					var chestProperty = property.FindPropertyRelative("chest");
 					var nestedChest = chestProperty.objectReferenceValue as ChestConfig;
 					return nestedChest != null ?
-						$"{rewardType}: Name = {nestedChest.name}, Count = {property.FindPropertyRelative("chestCount").intValue}" :
-						$"{rewardType}: Count = {property.FindPropertyRelative("chestCount").intValue}";
+						$"{rewardType}: Weight={weight}; Name={nestedChest.name}; Count={property.FindPropertyRelative("chestCount").intValue}" :
+						$"{rewardType}: Weight={weight}; Count={property.FindPropertyRelative("chestCount").intValue}";
 				case ChestConfig.RewardType.Hard:
-					return $"{rewardType}: Range = [{property.FindPropertyRelative("hardRange.min").floatValue}/{property.FindPropertyRelative("hardRange.max").floatValue}]";
+					return $"{rewardType}: Weight={weight}; Range=[{property.FindPropertyRelative("hardRange.min").floatValue}-{property.FindPropertyRelative("hardRange.max").floatValue}]";
 				case ChestConfig.RewardType.Soft:
-					return $"{rewardType}: Range = [{property.FindPropertyRelative("softRange.min").intValue}/{property.FindPropertyRelative("softRange.max").intValue}]";
+					return $"{rewardType}: Weight={weight}; Range=[{property.FindPropertyRelative("softRange.min").intValue}-{property.FindPropertyRelative("softRange.max").intValue}]";
 			}
 
 			return $"{rewardType}:";
