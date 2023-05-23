@@ -11,7 +11,6 @@ namespace Assets.Scripts.Common.Attributes
 	{
 		public readonly string message;
 		
-		//TODO: добавить уровень error, warning, info
 		public ValidatePropertyAttribute(string message, string conditionField, object compareValue = null) : base(conditionField, compareValue)
 		{
 			this.message = message;

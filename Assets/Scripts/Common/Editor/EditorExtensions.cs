@@ -13,11 +13,6 @@ namespace Assets.Scripts.Common.Extensions
 {
 	public static class EditorExtensions
 	{
-		/// <summary>
-		/// Gets visible children of `SerializedProperty` at 1 level depth.
-		/// </summary>
-		/// <param name="serializedProperty">Parent `SerializedProperty`.</param>
-		/// <returns>Collection of `SerializedProperty` children.</returns>
 		public static IEnumerable<SerializedProperty> GetVisibleChildren(this SerializedProperty serializedProperty, bool includeHidden = false)
 		{
 			SerializedProperty currentProperty = serializedProperty.Copy();
@@ -62,139 +57,88 @@ namespace Assets.Scripts.Common.Extensions
 			if (conditionField == null)
 				return false;
 
-			//TODO: сделать по новому стилю, refactoring
 			switch (conditionField.propertyType)
 			{
 				case SerializedPropertyType.Boolean:
 					try
 					{
-						bool comparationValue = attribute.compareValue == null || (bool)attribute.compareValue;
-						return conditionField.boolValue == comparationValue;
+						bool compareValue = attribute.compareValue == null || (bool)attribute.compareValue;
+						return conditionField.boolValue == compareValue;
 					}
 					catch
 					{
-						//"Invalid comparation Value Type"
 						return false;
 					}
-
-					break;
 				case SerializedPropertyType.Enum:
 					object paramEnum = attribute.compareValue;
 
 					if (paramEnum.GetType().IsEnum)
 					{
-						//if (!CheckSameEnumType(new[] { paramEnum.GetType() },
-						//	    property.serializedObject.targetObject.GetType(), conditionField.propertyPath))
-						//{
-							//"Enum Types doesn't match"
-							//return false;
-						//}
-						//else
-						//{
-							string enumValue = Enum.GetValues(paramEnum.GetType())
-								.GetValue(conditionField.enumValueIndex).ToString();
-
-							return paramEnum.ToString() == enumValue;
-						//}
+						string enumValue = Enum.GetValues(paramEnum.GetType()).GetValue(conditionField.enumValueIndex).ToString();
+						return paramEnum.ToString() == enumValue;
 					}
 					else
 					{
-						//"The comparation enum value is not an enum"
 						return false;
 					}
-					break;
 			case SerializedPropertyType.Integer: 
             case SerializedPropertyType.Float:
-                string stringValue;
-                bool error = false;
+                string strValue;
 
                 float conditionValue = 0;
                 if (conditionField.propertyType == SerializedPropertyType.Integer)
-                    conditionValue = conditionField.intValue;
+                {
+	                conditionValue = conditionField.intValue;
+                }
                 else if (conditionField.propertyType == SerializedPropertyType.Float)
-                    conditionValue = conditionField.floatValue;
+                {
+	                conditionValue = conditionField.floatValue;
+                }
                 
                 try
                 {
-                    stringValue = (string)attribute.compareValue;
+                    strValue = (string)attribute.compareValue;
                 }
                 catch
                 {
-	                //"Invalid comparation Value Type"
                     return false;
                 }
 
-                if (stringValue.StartsWith("=="))
+                if (strValue.StartsWith("=="))
                 {
-                    float? value = GetValue(stringValue, "==");
-                    if (value == null)
-                        error = true;
-                    else
-	                    return conditionValue == value;
+                    float? value = GetConditionValue(strValue, "==");
+                    return value != null && conditionValue == value;
                 }
-                else if (stringValue.StartsWith("!="))
+                else if (strValue.StartsWith("!="))
                 {
-                    float? value = GetValue(stringValue, "!=");
-                    if (value == null)
-                        error = true;
-                    else
-	                    return conditionValue != value;
+                    float? value = GetConditionValue(strValue, "!=");
+                    return value != null && conditionValue != value;
                 }
-                else if (stringValue.StartsWith("<="))
+                else if (strValue.StartsWith("<="))
                 {
-                    float? value = GetValue(stringValue, "<=");
-                    if (value == null)
-                        error = true;
-                    else
-	                    return conditionValue <= value;
+                    float? value = GetConditionValue(strValue, "<=");
+                    return value != null && conditionValue <= value;
                 }
-                else if (stringValue.StartsWith(">="))
+                else if (strValue.StartsWith(">="))
                 {
-                    float? value = GetValue(stringValue, ">=");
-                    if (value == null)
-                        error = true;
-                    else
-	                    return conditionValue >= value;
+                    float? value = GetConditionValue(strValue, ">=");
+                    return value != null && conditionValue >= value;
                 }
-                else if (stringValue.StartsWith("<"))
+                else if (strValue.StartsWith("<"))
                 {
-                    float? value = GetValue(stringValue, "<");
-                    if (value == null)
-                        error = true;
-                    else
-	                    return conditionValue < value;
+                    float? value = GetConditionValue(strValue, "<");
+                    return value != null && conditionValue < value;
                 }
-                else if (stringValue.StartsWith(">"))
+                else if (strValue.StartsWith(">"))
                 {
-                    float? value = GetValue(stringValue, ">");
-                    if (value == null)
-                        error = true;
-                    else
-                        return conditionValue > value;
+                    float? value = GetConditionValue(strValue, ">");
+                    return value != null && conditionValue > value;
                 }
-                
-                if (error)
-                {
-                    //"Invalid comparation instruction for Int or float value"
-                    return false;
-                }
+
                 break;
 			}
 
 			return false;
-		}
-
-		private static float? GetValue(string content, string remove)
-		{
-			string removed = content.Replace(remove, "");
-			try
-			{
-				return float.Parse(removed);
-			}
-			catch
-			{
-				return null;
-			}
 		}
 
 		public static T GetAttribute<T>(this SerializedProperty property) where T : class
@@ -205,7 +149,7 @@ namespace Assets.Scripts.Common.Extensions
 
 		public static T[] GetAttributes<T>(this SerializedProperty property) where T : class
 		{
-			FieldInfo fieldInfo = ReflectionUtility.GetField(GetTargetObjectWithProperty(property), property.name);
+			FieldInfo fieldInfo = ReflectionUtility.GetField(GetTargetObjectByProperty(property), property.name);
 			if (fieldInfo == null)
 			{
 				return new T[] { };
@@ -214,62 +158,68 @@ namespace Assets.Scripts.Common.Extensions
 			return (T[])fieldInfo.GetCustomAttributes(typeof(T), true);
 		}
 
-		public static object GetTargetObjectWithProperty(SerializedProperty property)
+		private static float? GetConditionValue(string content, string remove)
 		{
-			string path = property.propertyPath.Replace(".Array.data[", "[");
-			object obj = property.serializedObject.targetObject;
-			string[] elements = path.Split('.');
+			string removed = content.Replace(remove, "");
+			return float.TryParse(removed, out float result) ? result : null;
+		}
+
+		private static object GetTargetObjectByProperty(SerializedProperty property)
+		{
+			string propertyPath = property.propertyPath.Replace(".Array.data[", "[");
+			object targetObj = property.serializedObject.targetObject;
+			string[] elements = propertyPath.Split('.');
 
 			for (int i = 0; i < elements.Length - 1; i++)
 			{
 				string element = elements[i];
 				if (element.Contains("["))
 				{
-					string elementName = element.Substring(0, element.IndexOf("["));
-					int index = Convert.ToInt32(element.Substring(element.IndexOf("[")).Replace("[", "").Replace("]", ""));
-					obj = GetValue_Imp(obj, elementName, index);
+					string elementName = element.Substring(0, element.IndexOf("[", StringComparison.Ordinal));
+					int index = Convert.ToInt32(element.Substring(element.IndexOf("[", StringComparison.Ordinal)).Replace("[", "").Replace("]", ""));
+					targetObj = GetPropertyValue(targetObj, elementName, index);
 				}
 				else
 				{
-					obj = GetValue_Imp(obj, element);
+					targetObj = GetPropertyValue(targetObj, element);
 				}
 			}
 
-			return obj;
+			return targetObj;
 		}
 
-		private static object GetValue_Imp(object source, string name)
+		private static object GetPropertyValue(object sourceObj, string name)
 		{
-			if (source == null)
+			if (sourceObj == null)
 			{
 				return null;
 			}
 
-			Type type = source.GetType();
+			Type sourceType = sourceObj.GetType();
 
-			while (type != null)
+			while (sourceType != null)
 			{
-				FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				FieldInfo field = sourceType.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 				if (field != null)
 				{
-					return field.GetValue(source);
+					return field.GetValue(sourceObj);
 				}
 
-				PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+				PropertyInfo property = sourceType.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 				if (property != null)
 				{
-					return property.GetValue(source, null);
+					return property.GetValue(sourceObj, null);
 				}
 
-				type = type.BaseType;
+				sourceType = sourceType.BaseType;
 			}
 
 			return null;
 		}
 
-		private static object GetValue_Imp(object source, string name, int index)
+		private static object GetPropertyValue(object sourceObj, string name, int index)
 		{
-			IEnumerable enumerable = GetValue_Imp(source, name) as IEnumerable;
+			IEnumerable enumerable = GetPropertyValue(sourceObj, name) as IEnumerable;
 			if (enumerable == null)
 			{
 				return null;

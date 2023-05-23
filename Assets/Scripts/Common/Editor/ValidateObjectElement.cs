@@ -24,8 +24,6 @@ namespace Assets.Scripts.Common
 
 			_propertyFields.Clear();
 
-			//var container = new VisualElement();
-
 			var foldout = new Foldout();
 			foldout.text = property.displayName;
 
@@ -37,11 +35,7 @@ namespace Assets.Scripts.Common
 				foldout.Add(childField);
 
 				_propertyFields.Add(childField);
-
-				//childField.IsVisible();
 			}
-
-			//container.Add(foldout);
 
 			Add(foldout);
 
@@ -55,8 +49,6 @@ namespace Assets.Scripts.Common
 
 		private void CheckPropertiesVisibility()
 		{
-			
-			
 			foreach (var propertyField in _propertyFields)
 			{
 				bool isPropertyVisible = propertyField.IsVisible();

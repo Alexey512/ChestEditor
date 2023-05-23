@@ -17,15 +17,11 @@ namespace Assets.Scripts.Common
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			base.OnGUI(position, property, label);
-			return;
-			
 			Rect contentPosition = EditorGUI.PrefixLabel(position, label);
 
 			if (position.height > 16f)
 			{
 				position.height = 16f;
-				EditorGUI.indentLevel += 1;
 				contentPosition = EditorGUI.IndentedRect(position);
 				contentPosition.y += 18f;
 			}
@@ -36,7 +32,6 @@ namespace Assets.Scripts.Common
 			EditorGUIUtility.labelWidth = 28f;
 
 			contentPosition.width *= 0.5f;
-			EditorGUI.indentLevel = 0;
 
 			var minProperty = property.FindPropertyRelative("min");
 			var maxProperty = property.FindPropertyRelative("max");
@@ -47,14 +42,7 @@ namespace Assets.Scripts.Common
 				EditorGUI.PropertyField(contentPosition, minProperty);
 				if (EditorGUI.EndChangeCheck())
 				{
-					if (minProperty.propertyType == SerializedPropertyType.Integer)
-					{
-						minProperty.intValue = Math.Min(minProperty.intValue, maxProperty.intValue);
-					}
-					else if (minProperty.propertyType == SerializedPropertyType.Float)
-					{
-						minProperty.floatValue = Math.Min(minProperty.floatValue, maxProperty.floatValue);
-					}
+					ValidateMinProperty(minProperty, maxProperty);
 				}
 			}
 			EditorGUI.EndProperty();
@@ -67,124 +55,40 @@ namespace Assets.Scripts.Common
 				EditorGUI.PropertyField(contentPosition, maxProperty);
 				if (EditorGUI.EndChangeCheck())
 				{
-					if (maxProperty.propertyType == SerializedPropertyType.Integer)
-					{
-						maxProperty.intValue = Math.Max(minProperty.intValue, maxProperty.intValue);
-					}
-					else if (maxProperty.propertyType == SerializedPropertyType.Float)
-					{
-						maxProperty.floatValue = Math.Max(minProperty.floatValue, maxProperty.floatValue);
-					}
+					ValidateMaxProperty(minProperty, maxProperty);
 				}
 			}
+
 			EditorGUI.EndProperty();
 		}
 
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
+		protected virtual void ValidateMinProperty(SerializedProperty minProperty, SerializedProperty maxProperty)
 		{
-			//return base.CreatePropertyGUI(property);
-
-			var container = new VisualElement();
-
-			VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Common/Editor/RangeDrawer.uxml");
-			visualTree.CloneTree(container);
-
-			//var labelField = container.Q<Label>("label");
-			//labelField.text = property.displayName;
-
-			var foldout = container.Q<Foldout>();
-			foldout.text = property.displayName;
-
-			var tooltipAttr = property.GetAttribute<TooltipAttribute>();
-			if (tooltipAttr != null)
+			if (minProperty.propertyType == SerializedPropertyType.Integer)
 			{
-				foldout.tooltip = tooltipAttr.tooltip;
+				minProperty.intValue = Math.Min(minProperty.intValue, maxProperty.intValue);
 			}
-
-			/*
-			var minFieldContainer = container.Q<VisualElement>("minContainer");
-			if (minFieldContainer != null)
+			else if (minProperty.propertyType == SerializedPropertyType.Float)
 			{
-				var minProperty = property.FindPropertyRelative("min");
-				var minField = new FloatField();
-				minField.BindProperty(minProperty);
-				minField.label = string.Empty;
-				minFieldContainer.Add(minField);
+				minProperty.floatValue = Math.Min(minProperty.floatValue, maxProperty.floatValue);
 			}
+		}
 
-			var maxFieldContainer = container.Q<VisualElement>("maxContainer");
-			if (maxFieldContainer != null)
+		protected virtual void ValidateMaxProperty(SerializedProperty minProperty, SerializedProperty maxProperty)
+		{
+			if (maxProperty.propertyType == SerializedPropertyType.Integer)
 			{
-				var maxProperty = property.FindPropertyRelative("max");
-				var maxField = new FloatField();
-				maxField.BindProperty(maxProperty);
-				maxField.label = string.Empty;
-				maxFieldContainer.Add(maxField);
+				maxProperty.intValue = Math.Max(minProperty.intValue, maxProperty.intValue);
 			}
-			*/
-
-			var minField = container.Q<PropertyField>("min");
-			minField.BindProperty(property.FindPropertyRelative("min"));
-			//minField.label = string.Empty;
-
-			var maxField = container.Q<PropertyField>("max");
-			maxField.BindProperty(property.FindPropertyRelative("max"));
-			//maxField.label = string.Empty;
-
-			//var minField = container.Q<TextField>("min");
-			//minField.BindProperty(property.FindPropertyRelative("min"));
-
-			//var floatField = container.Q<FloatField>("max");
-
-			//floatField.
-
-			/*
-			//container.style.backgroundColor = Color.red;
-
-			container.style.flexDirection = FlexDirection.Row;
-
-			var labelField = new TextField(property.displayName);
-			container.Add(labelField);
-
-			//property.propertyType == SerializedPropertyType.Float
-
-			var minField = new PropertyField(property.FindPropertyRelative("min"));
-			var maxField = new PropertyField(property.FindPropertyRelative("max"));
-
-			//labelField.style.flexGrow = 1.0f;
-			//minField.style.flexGrow = 1.0f;
-			//maxField.style.flexGrow = 1.0f;
-
-			container.Add(minField);
-			container.Add(maxField);
-
-			//container.Add(new HelpBox("FFFFF", HelpBoxMessageType.Error));
-			*/
-
-			return container;
+			else if (maxProperty.propertyType == SerializedPropertyType.Float)
+			{
+				maxProperty.floatValue = Math.Max(minProperty.floatValue, maxProperty.floatValue);
+			}
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			return Screen.width < 333 ? (16f + 18f) : 16f;
 		}
-
-		/*
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			float totalHeight = EditorGUIUtility.singleLineHeight;
- 
-			var expandable = (property.isExpanded || property.isArray);
-			if (expandable)
-			{
-				while (property.NextVisible(true))
-				{
-					totalHeight += EditorGUI.GetPropertyHeight(property, label, true);
-				}
-			}
- 
-			return expandable ? totalHeight : EditorGUIUtility.singleLineHeight;
- 		}
-		*/
 	}
 }
