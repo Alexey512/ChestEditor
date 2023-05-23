@@ -23,8 +23,6 @@ namespace Assets.Scripts.Common
 
 		private readonly Foldout _foldout;
 
-		private Color BackColor = new Color(0.3f, 0.3f, 0.35f, 1.0f);
-
 		private static StyleSheet _styleSheet;
 
 		public ValidateObjectElement(SerializedProperty property)
@@ -47,8 +45,6 @@ namespace Assets.Scripts.Common
 			{
 				var childField = new ValidatePropertyField();
 				childField.Initialize(childProperty, property, PropertyChangeCallback);
-
-				childField.style.backgroundColor = new StyleColor(BackColor);
 
 				_foldout.Add(childField);
 
